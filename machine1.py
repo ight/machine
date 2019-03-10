@@ -7,20 +7,21 @@ import pandas as pd
 import quandl, math, datetime
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import preprocessing, cross_validation, svm
-from sklearn.linear_model import LinerRegression
+from sklearn.model_selection import train_test_split
+from sklearn import preprocessing, svm
+from sklearn.linear_model import LinearRegression
 from matplotlib import style
 
 style.use('ggplot')
 
-df = quandl.get("CHRIS/MGEX_IH1", authtoken="XYZ")
-df = df[['Open', 'High', 'Low', 'Last', 'Volume']]
-df['HI_PCT'] = (df['High'] - df['Last']) / df['Last'] * 100.0
-df['CHN_PCT'] = (df['Last'] - df['Open']) / df['Open'] * 100.0
+df = quandl.get("WIKI/GOOGL", authtoken="XYZ")
+df = df[['Adj. Open','Adj. High','Adj. Low','Adj. Close','Adj. Volume',]]
+df['HI_PCT'] = (df['Adj. High'] - df['Adj. Close']) / df['Adj. Close'] * 100.0
+df['PCT_change'] = (df['Adj. Close'] - df['Adj. Open']) / df['Adj. Open'] * 100.0
 
-df = df[['Last', 'HI_PCT', 'CHN_PCT', 'Volume']]
+df = df[['Adj. Close', 'HI_PCT', 'PCT_change', 'Adj. Volume']]
 
-forecast_col = 'Last'
+forecast_col = 'Adj. Close'
 df.fillna(-99999, inplace=True)
 
 forecast_out = int(math.ceil(0.01*len(df)))
@@ -41,7 +42,7 @@ X_lately = X[-forecast_out:]
 Y = np.array(df['lable'])
 Y = np.array(df['lable'])
 
-X_train, X_test, Y_train, Y_test = cross_validation.train_test_split(X, Y, test_size=0.2)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
 clf = LinearRegression()
 clf.fit(X_train, Y_train)
 accuracy = clf.score(X_test,y_test)
@@ -64,7 +65,7 @@ for i in forecast_set:
   df.loc[next_date] = [np.nan for _ in range(len(df.columns) -1)] + [i]
 
 
-df['Last'].plot()
+df['Adj. Close'].plot()
 df['Forecast'].plot()
 plt.legend(loc=4)
 plt.xlabel('Date')
