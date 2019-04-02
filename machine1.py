@@ -7,10 +7,12 @@ import pandas as pd
 import quandl, math, datetime
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing, svm
 from sklearn.linear_model import LinearRegression
 from matplotlib import style
+
 
 style.use('ggplot')
 
@@ -28,7 +30,6 @@ forecast_out = int(math.ceil(0.01*len(df)))
 print(forecast_out)
 
 df['lable'] = df[forecast_col].shift(-forecast_out)
-df.dropna(inplace=True)
 
 # features "X"
 # labels "Y"
@@ -39,12 +40,12 @@ X = preprocessing.scale(X)
 X = X[:-forecast_out]
 X_lately = X[-forecast_out:]
 
-Y = np.array(df['lable'])
-Y = np.array(df['lable'])
+df.dropna(inplace=True)
+y = np.array(df['lable'])
 
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 clf = LinearRegression()
-clf.fit(X_train, Y_train)
+clf.fit(X_train, y_train)
 accuracy = clf.score(X_test,y_test)
 
 print(accuracy)
